@@ -23,9 +23,9 @@
 <label class='error'>{{.}}</label>
 {{end}}
 {{$exp := or (.Get "expires") "365"}}
-<input type='radio' name='expires' value='365' {{if (eq $exp "365")}}checked {{end}} />
-<input type='radio' name='expires' value='7' {{if (eq $exp "7")}}checked {{end}} />
-<input type='radio' name='expires' value='1' {{if (eq $exp "1")}}checked {{end}} />
+<input type='radio' name='expires' value='365' {{if (eq $exp "365")}}checked {{end}}> 365 Days </input>
+<input type='radio' name='expires' value='7' {{if (eq $exp "7")}}checked {{end}}> 7 Days </input>
+<input type='radio' name='expires' value='1' {{if (eq $exp "1")}}checked {{end}} > 1 Days </input>
 </div>
 <div>
 <input type='submit' value='Publish snippet'>
