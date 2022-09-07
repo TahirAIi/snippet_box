@@ -8,9 +8,10 @@ import (
 )
 
 type templateData struct {
-	Form     *forms.Form
-	Snippet  *models.Snippets
-	Snippets []*models.Snippets
+	Form              *forms.Form
+	Snippet           *models.Snippets
+	Snippets          []*models.Snippets
+	AuthenticatedUser bool
 }
 
 func newTemplateCache(dir string) (map[string]*template.Template, error) {

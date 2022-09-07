@@ -36,3 +36,7 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 	}
 	buf.WriteTo(w)
 }
+
+func (app *application) isUserAuthenticated(request *http.Request) bool {
+	return app.session.GetInt(request, "userId") > 0
+}

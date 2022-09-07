@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/golangcollege/sessions"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -18,7 +19,9 @@ type application struct {
 	errorLogger   *log.Logger
 	infoLogger    *log.Logger
 	snippets      *db.SnippetModel
+	users         *db.UserModel
 	templateCache map[string]*template.Template
+	session       *sessions.Session
 }
 
 func main() {
@@ -28,8 +31,22 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	address := os.Getenv("NETWORK_PORT")
-	dns := os.Getenv("DB_DNS")
+
+	address, doAddressExists := os.LookupEnv("NETWORK_PORT")
+	if !(doAddressExists == true) {
+		panic("Unable to find value of NETWORK_PORT in env")
+	}
+
+	dns, dbDnsExists := os.LookupEnv("DB_DNS")
+	if !dbDnsExists {
+		panic("Unable to find  db DNS")
+	}
+
+	appId, appSecretExists := os.LookupEnv("APP_ID")
+
+	if !appSecretExists {
+		panic("Unable to find app secret")
+	}
 
 	infoLogger := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLogger := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
@@ -39,20 +56,28 @@ func main() {
 		fmt.Println(err)
 	}
 	templateCache, err := newTemplateCache("./ui/html/")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(templateCache)
+	session := sessions.New([]byte(appId))
+	session.Lifetime = 12 * time.Hour
+
 	app := &application{
 		snippets:      &db.SnippetModel{DB: dbConnection},
+		users:         &db.UserModel{DB: dbConnection},
 		templateCache: templateCache,
 		infoLogger:    infoLogger,
 		errorLogger:   errorLogger,
+		session:       session,
 	}
 	fmt.Println("Starting server")
 	server := &http.Server{
-		Addr:         ":4000",
+		Addr:         address,
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
 		Handler:      app.routes(),
 	}
-	fmt.Sprintf("Starting server at port %s", address)
 	err = server.ListenAndServe()
 	fmt.Println(err)
 }

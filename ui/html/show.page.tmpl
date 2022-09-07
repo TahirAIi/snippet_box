@@ -1,10 +1,9 @@
 {{template "base" .}}
-{{define "title"}}Snippet #{{.Snippet.ID}}{{end}}
 {{define "body"}}
 <div class='snippet'>
 <div class='metadata'>
 <strong>{{.Snippet.Title}}</strong>
-<a href="/snippet/delete/{{.Snippet.ID}}"><span> Delete </span></a>
+<a href="/snippet/delete/{{.Snippet.Uuid}}"><span> Delete </span></a>
 </div>
 <pre><code>{{.Snippet.Content}}</code></pre>
 <div class='metadata'>
