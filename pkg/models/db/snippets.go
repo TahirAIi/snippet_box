@@ -11,11 +11,11 @@ type SnippetModel struct {
 	DB *gorm.DB
 }
 
-func (snippetModel *SnippetModel) Insert(title, content, expires string) (int, error) {
+func (snippetModel *SnippetModel) Insert(title, content, expires string) (string, error) {
 
 	expirationDate, err := strconv.Atoi(expires)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 	snippet := models.Snippets{
 		Title:   title,
@@ -25,14 +25,14 @@ func (snippetModel *SnippetModel) Insert(title, content, expires string) (int, e
 	res := snippetModel.DB.Create(&snippet)
 
 	if res.Error != nil {
-		return 0, res.Error
+		return "", res.Error
 	}
-	return snippet.ID, nil
+	return snippet.Uuid, nil
 }
 
-func (snippetModel *SnippetModel) Get(id int) (*models.Snippets, error) {
+func (snippetModel *SnippetModel) Get(uuid string) (*models.Snippets, error) {
 	snippet := &models.Snippets{}
-	result := snippetModel.DB.First(&snippet, id)
+	result := snippetModel.DB.First(&snippet, "uuid = ?", uuid)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -49,6 +49,6 @@ func (snippetModel *SnippetModel) Latest() ([]*models.Snippets, error) {
 	return snippets, nil
 }
 
-func (snippetModel *SnippetModel) Delete(id int) {
-	snippetModel.DB.Delete(models.Snippets{}, id)
+func (snippetModel *SnippetModel) Delete(uuid string) {
+	snippetModel.DB.Delete(models.Snippets{}, uuid)
 }
